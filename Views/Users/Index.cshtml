@@ -1,0 +1,198 @@
+﻿@model IEnumerable<MvcUser.Models.User>
+
+@{
+    ViewData["Title"] = "Index";
+    Layout = null;
+}
+
+<h1>Index</h1>
+<script src="~/lib/jquery/dist/jquery.js"></script>
+<script src="~/lib/bootstrap/dist/js/bootstrap.js"></script>
+<link href="~/lib/bootstrap/dist/css/bootstrap.css" rel="stylesheet" />
+<link href="~/css/bootstrap.css" rel="stylesheet" />
+<div class="container" align="center" style="margin-top:10%; width:50%">
+    <div class="row">
+        <div class="m-lg-auto alert alert-info" style="width:50%">
+            <h3 class="text-center" align="center">Login</h3>
+            <form id="loginForm">
+                <div id="msg"><ul style="color:red;">Invlid Username or Password</ul></div>
+                <div class="form-group">
+                    <div class="input-group">
+                        <span class="input-group-append"><i class="glyphicon glyphicon-envelope "></i></span>
+                        <input class="form-control" type="email" name="Email" id="logEmail" placeholder="Email" />
+                    </div>
+                </div>
+                <div class="form-group">
+                    <div class="input-group">
+                        <span class="input-group-append"><i class="glyphicon glyphicon-lock"></i></span>
+                        <input class="form-control" type="password" name="Password" id="logPassword" placeholder="Password" />
+                    </div>
+                </div>
+            </form>
+            <div class="form-group">
+                <button class="btn btn-info form-control" type="submit" onclick="Login()"><i class="glyphicon glyphicon-log-in"></i>Login</button>
+            </div>
+            <div class="form-group">
+                <a style="float:left">Forget Password ?</a><a style="float:right;cursor:pointer" onclick="SignUp()">Sign up</a>
+            </div>
+        </div>
+    </div>
+</div>
+
+<div class="modal fade" id="ShowModal">
+    <div class="modal-dialog">
+        <div class="modal-content">
+            <div class="modal-header " align="center">
+                <a href="#" class="close" data-dismiss="modal">&times;</a>
+                <h3 class="text-center" align="center">Registration Form</h3>
+                <div id="message1">
+                    <div class="alert alert-success">
+                        <span class="glyphicon glyphicon-ok"></span><strong>
+                            Success Message! <br />
+                            send an email to your email address with confirmation link!
+                            please check your inbox
+                        </strong>
+                    </div>
+                </div>
+                <div id="message2">
+                    <div class="alert alert-success">
+                        <span class="glyphicon glyphicon-remove"></span><strong>Error  Message! Your Registration Is Not Complete</strong>
+                    </div>
+                </div>
+            </div>
+
+            <div class="modal-body">
+                <form id="Registration">
+                    <div class="form-group">
+                        <div class="input-group">
+                            <span class="input-group-append"><i class="glyphicon glyphicon-user "></i></span>
+                            <input class="form-control" type="text" name="Username" id="user" placeholder="Username" />
+                        </div>
+                    </div>
+                    <div class="form-group">
+                        <span class="input-group-append"><i class="glyphicon glyphicon-envelope"></i></span>
+                        <input class="form-control" type="email" name="Email" id="Email" placeholder="Email" />
+                    </div>
+                    <div class="form-group">
+                        <div class="input-group">
+                            <span class="input-group-append"><i class="glyphicon glyphicon-lock"></i></span>
+                            <input class="form-control" type="password" name="Password" id="Password" placeholder="Password" />
+                        </div>
+                    </div>
+                </form>
+                <div class="form-group">
+                    <button class="btn btn-info form-control" type="submit" onclick="SaveForm()"><i class="glyphicon glyphicon-registration-mark"></i>Submit</button>
+                </div>
+            </div>
+
+        </div>
+    </div>
+</div>
+<!--<p>
+                    <a asp-action="Create">Create New</a>
+                </p>-->
+<script>
+    function SignUp() {
+        $("#ShowModal").modal();
+        $("#message1").hide();
+        $("#message2").hide();
+    }
+
+    function SaveForm() {
+        var name = $("#user").val();
+        var pwd = $("#Email").val();
+        var email = $("#Password").val();
+
+        if (name == "" || pwd == "" || email == "") {
+            $("#message1").hide();
+            $("#message2").show();
+            return false;
+        }
+        var data = $("#Registration").serialize();
+        $.ajax({
+            type: "post",
+            data: data,
+            url: "/Users/SaveData",
+            success: function () {
+                $("#message1").show();
+                $("#message2").hide();
+                $("#Registration").trigger("reset");
+            }
+        });
+    }
+
+    $("#msg").hide();
+    //Login system
+
+    var Login = function () {
+        var data = $("#loginForm").serialize();
+        $.ajax({
+            type: "post",
+            url: "/Users/CheckValidUser",
+            data: data,
+            success: function (result) {
+                if (result == "404") {
+                    $("#loginForm").trigger("reset");
+                    $("#msg").show();
+                }
+                else {
+                    window.location.href = "Users/AfterLogin", true
+                }
+            }
+        })
+        return false
+    }
+
+</script>
+
+<!--
+
+<table class="table">
+    <thead>
+        <tr>
+            <th>
+                 Html.DisplayNameFor(model => model.Username)
+
+            </th>
+            <th>
+                 Html.DisplayNameFor(model => model.Email)
+            </th>
+            <th>
+                 Html.DisplayNameFor(model => model.Password)
+            </th>
+            <th>
+                 Html.DisplayNameFor(model => model.IsValid)
+            </th>
+            <th></th>
+        </tr>
+    </thead>
+    <tbody>
+         foreach (var item in Model)
+        {
+            <tr>
+                <td>
+                     Html.DisplayFor(modelItem => item.Username)
+                </td>
+                <td>
+                     Html.DisplayFor(modelItem => item.Email)
+                </td>
+                <td>
+                    Html.DisplayFor(modelItem => item.Password)
+                </td>
+                <td>
+                    Html.DisplayFor(modelItem => item.IsValid)
+                </td>
+                <td>
+                    <a asp-action="Edit" asp-route-id="item.ID">Edit</a> |
+                    <a asp-action="Details" asp-route-id="item.ID">Details</a> |
+                    <a asp-action="Delete" asp-route-id="item.ID">Delete</a>
+                </td>
+            </tr>
+        }
+    </tbody>
+</table>
+
+-->
+>
+
+

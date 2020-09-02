@@ -1,0 +1,294 @@
+﻿@{
+    ViewBag.Title = "ManageEmployee";
+}
+
+
+
+<!DOCTYPE html>
+<html>
+<head>
+    <meta name="viewport" content="width=device-width, initial-scale=1">
+    <link href="~/css/bootstrap.css" rel="stylesheet" />
+    <style>
+        body {
+            font-family: "Lato", sans-serif;
+        }
+
+        /*侧边栏*/
+        .sidenav {
+            height: 100%;
+            width:220px;
+            position: fixed;
+            z-index: 1;
+            top: 0;
+            left: 0;
+            background-color: #111;
+            overflow-x: hidden;
+            padding-top: 20px;
+        }
+
+            /*侧边栏下拉*/
+            .sidenav a, .dropdown-btn, .sider-btn {
+                padding: 6px 8px 6px 16px;
+                text-decoration: none;
+                font-size: 20px;
+                color: #818181;
+                display: block;
+                border: none;
+                background: none;
+                width: 100%;
+                text-align: left;
+                cursor: pointer;
+                outline: none;
+            }
+                /*侧边栏鼠标悬停*/
+                .sidenav a:hover, .dropdown-btn:hover {
+                    color: #f1f1f1;
+                }
+
+        .main {
+            margin-left: 0px;
+            font-size: 16px;
+        }
+
+        /* Add an active class to the active dropdown button */
+        .active {
+            background-color: green;
+            color: white;
+        }
+
+        .dropdown-container {
+            display: none;
+            background-color: #262626;
+            padding-left: 8px;
+        }
+
+        .fa-caret-down {
+            float: left; /*right*/
+            padding-right: 8px;
+        }
+
+        table {
+            font-family: arial, sans-serif;
+            border-collapse: collapse;
+            text-align: left;
+            padding: 20px 0px;
+        }
+
+        th, td {
+            border: 1px solid #dddddd;
+            text-align: left;
+            padding: 10px;
+            width: auto;
+        }
+
+        th {
+            background-color: #D3D3D3;
+        }
+
+        tr:nth-child(even) {
+            background-color: #F5F5F5;
+        }
+
+        tr:hover {
+            background-color: #A9A9A9;
+            cursor: pointer;
+        }
+
+        .btn {
+            border: none;
+            color: white;
+            padding: 14px 28px;
+            font-size: 16px;
+            cursor: pointer;
+            text-align: left;
+            width: 100%;
+        }
+
+        .edit, .add {
+            background-color: #4CAF50;
+            margin: 10px 0px 10px 0px;
+        }
+            /* Green */
+            .edit:hover {
+                background-color: #46a049;
+            }
+
+        body {
+            margin: 10px;
+        }
+
+        .demo-carousel {
+            height: 200px;
+            line-height: 200px;
+            text-align: center;
+        }
+
+        .sider-btn{
+            margin-left:-15px;
+        }
+    </style>
+</head>
+<body>
+    <div class="container-fluid">
+        <div class="sidenav navbar-expand-lg ">
+            <button class="dropdown-btn">
+                About
+                <i class="fa fa-caret-down"></i>
+            </button>
+            <div class="dropdown-container">
+                @foreach (var link in ViewBag.link)
+                {
+                    if (link.Parent == "About")
+                    {
+                        <a href=@link.Link>@link.Name</a>
+                    }
+                }
+            </div>
+
+            <button class="dropdown-btn ">
+                Dropdown
+                <i class="fa fa-caret-down"></i>
+            </button>
+            <div class="dropdown-container">
+                @foreach (var link in ViewBag.link)
+                {
+                    if (link.Parent == "Dropdown")
+                    {
+                        <a href=@link.Link>@link.Name</a>
+                    }
+                }
+            </div>
+            <button class="sider-btn">
+                <a href="/Users/Users">用户管理</a>
+                <i class="fa fa-caret-down"></i>
+            </button>
+        </div>
+
+        <div class="container-fluid">      
+            <div>
+                Welcome:<a href="#">@TempData["UserName"]</a><br />
+                <a href="/Users/Logout">Logout</a>
+            </div>
+        </div>
+
+        <div class="modal fade " id="ShowModalCreate">
+            <div class="modal-dialog ">
+                <div class="modal-content">
+                    <div class="modal-header ">
+                        <h3 class="text-left">Create Form</h3>
+                        <a href="#" class="close " data-dismiss="modal">&times;</a>
+                        <div id="message1">
+                            <div class="alert alert-success">
+                                <span class="glyphicon glyphicon-ok"></span><strong>
+                                    Success Message! <br />
+                                    send an email to your email address with confirmation link!
+                                    please check your inbox
+                                </strong>
+                            </div>
+                        </div>
+                        <div id="message2">
+                            <div class="alert alert-success">
+                                <span class="glyphicon glyphicon-remove"></span><strong>Error  Message! Your Registration Is Not Complete</strong>
+                            </div>
+                        </div>
+                    </div>
+
+                    <div class="modal-body">
+                        <form id="addEmployeeModal">
+                            <div class="form-group">
+                                <div class="input-group">
+                                    <span class="input-group-append"><i class="glyphicon glyphicon-user "></i></span>
+                                    <input class="form-control" type="text" name="Name" id="Name" placeholder="Name" required />
+                                </div>
+                            </div>
+                            <div class="form-group">
+                                <div class="input-group">
+                                    <span class="input-group-append"><i class="glyphicon glyphicon-level-up"></i></span>
+                                    <input class="form-control" type="text" name="Level" id="Level" placeholder="Level" required />
+                                </div>
+                            </div>
+                            <div class="form-group">
+                                <div class="input-group">
+                                    <span class="input-group-append"><i class="glyphicon glyphicon-phone"></i></span>
+                                    <input class="form-control" type="text" name="Phone" id="Phone" placeholder="Phone" required />
+                                </div>
+                            </div>
+                        </form>
+                        <div class="form-group">
+                            <button class="btn btn-info form-control" type="submit" onclick="create()"><i class="glyphicon glyphicon-registration-mark"></i>Create</button>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <div class="modal fade " id="ShowModalEdit">
+            <div class="modal-dialog ">
+                <div class="modal-content">
+                    <div class="modal-header ">
+                        <h3 class="text-left">Edit Form</h3>
+                        <a href="#" class="close" data-dismiss="modal">&times;</a>
+                    </div>
+
+                    <div class="modal-body">
+                        <form id="editEmployeeModal">
+                            <div class="form-group">
+                                <div class="input-group">
+                                    <span class="input-group-append"><i class="glyphicon glyphicon-user "></i></span>
+                                    <input class="form-control " type="text" name="EditName" id="EditName" required />
+                                </div>
+                            </div>
+                            <div class="form-group">
+                                <div class="input-group">
+                                    <span class="input-group-append"><i class="glyphicon glyphicon-level-up"></i></span>
+                                    <input class="form-control  " type="text" name="EditLevel" id="EditLevel" required />
+                                </div>
+                            </div>
+                            <div class="form-group">
+                                <div class="input-group">
+                                    <span class="input-group-append"><i class="glyphicon glyphicon-phone"></i></span>
+                                    <input class="form-control " type="text" name="EditPhone" id="EditPhone" required />
+                                </div>
+                            </div>
+                        </form>
+                        <div class="form-group">
+                            <button class="btn btn-info form-control " type="submit" onclick="editSubmit()"><i class="glyphicon glyphicon-registration-mark"></i>Edit</button>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+    </div>
+    <script src="~/js/materialize.min.js"></script>
+    <script>
+
+        var dropdown = document.getElementsByClassName("dropdown-btn");
+        for (var i = 0; i < dropdown.length; i++) {
+            dropdown[i].addEventListener("click", function () {
+                this.classList.toggle("active")
+                var dropdownContent = this.nextElementSibling;
+                if (dropdownContent.style.display === "block") {
+                    dropdownContent.style.display = "none";
+                }
+                else {
+                    for (var j = 0; j < dropdown.length; j++) {
+                        if (dropdown[j].classList.contains("active"))
+                            dropdown[j].classList.toggle("active")
+                        dropdown[j].nextElementSibling.style.display = "none";
+                    }
+                    this.classList.toggle("active");
+                    dropdownContent.style.display = "block";
+                }
+            }
+            );
+        }
+
+
+
+
+    </script>
+
+</body>
+</html>

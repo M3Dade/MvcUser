@@ -1,0 +1,83 @@
+﻿using Microsoft.EntityFrameworkCore;
+using Microsoft.Extensions.Configuration;
+using MvcUser.Models;
+using System.Collections.Generic;
+using System.IO;
+using MySqlConnector;
+using System.Data;
+using System;
+
+namespace MvcUser.Data 
+{
+    public class MvcUserContext: DbContext
+    {
+        public string ConnectionString { get; set; }
+        private MySqlConnection GetConnection()
+        {
+            return new MySqlConnection(ConnectionString);
+        }
+        
+        public MvcUserContext(string connectionString)
+        {
+            this.ConnectionString = connectionString;
+        }
+		
+        private MySqlConnection GetConnection()
+        {
+            return new MySqlConnection(ConnectionString);
+        }
+		
+        public List<User> GetAllUser()
+        {
+            List<User> list = new List<User>();
+            //连接数据库
+            using (MySqlConnection Connection = GetConnection())
+            {
+            Connection.Open();
+            //查找数据库里面的表
+            MySqlCommand cmd = new MySqlCommand("select * from user", Connection);
+            using (MySqlDataReader reader = cmd.ExecuteReader())
+            {
+                //读取数据
+                while (reader.Read())
+                {
+                    list.Add(new User()
+                    {
+                        ID = reader.GetInt32("ID"),                     //Id = Convert.ToInt32(reader["Id"])
+                        Username = reader.GetString("Username"),        //reader["Name"].ToString()
+                        Email = reader.GetString("Email"),
+                        Password = reader.GetString("Password"),
+                        IsValid = !Convert.IsDBNull(reader["IsValid"])
+                    }); ;
+                }
+                }
+            }
+            return list;
+        }
+
+
+
+
+
+
+
+        /*
+        protected override void OnConfiguring(DbContextOptionsBuilder optionsBuilder)
+        {
+            var builder = new ConfigurationBuilder()
+                               .SetBasePath(Directory.GetCurrentDirectory())
+                               .AddJsonFile("appsettings.json");
+            var configuration = builder.Build();
+            optionsBuilder.UseMySql(configuration["ConnectionStrings:DefaultConnection"]);
+        }
+        */
+        /*
+          public MvcUserContext(DbContextOptions<MvcUserContext> options)
+            : base(options)
+        {
+            
+        }
+         */
+        //public DbSet<User> User { get; set; }
+    }
+}

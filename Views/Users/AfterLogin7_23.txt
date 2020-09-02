@@ -1,0 +1,260 @@
+﻿@{
+    ViewBag.Title = "Moive App";
+}
+
+
+
+<!DOCTYPE html>
+<html>
+<head>
+    <meta name="viewport" content="width=device-width, initial-scale=1">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/4.7.0/css/font-awesome.min.css">
+    <link href="~/css/layui.css" rel="stylesheet" media="all"/>
+
+    <style>
+        body {
+            font-family: "Lato", sans-serif;
+        }
+
+        /*侧边栏*/
+        .sidenav {
+            height: 100%;
+            width: 200px;
+            position: fixed;
+            z-index: 1;
+            top: 0;
+            left: 0;
+            background-color: #111;
+            overflow-x: hidden;
+            padding-top: 20px;
+        }
+
+            /*侧边栏下拉*/
+            .sidenav a, .dropdown-btn {
+                padding: 6px 8px 6px 16px;
+                text-decoration: none;
+                font-size: 20px;
+                color: #818181;
+                display: block;
+                border: none;
+                background: none;
+                width: 100%;
+                text-align: left;
+                cursor: pointer;
+                outline: none;
+            }
+                /*侧边栏鼠标悬停*/
+                .sidenav a:hover, .dropdown-btn:hover {
+                    color: #f1f1f1;
+                }
+
+        .main {
+            margin-left: 200px;
+            font-size: 20px;
+            padding: 0px 10px;
+        }
+
+        /* Add an active class to the active dropdown button */
+        .active {
+            background-color: green;
+            color: white;
+        }
+
+        .dropdown-container {
+            display: none;
+            background-color: #262626;
+            padding-left: 8px;
+        }
+
+
+        .fa-caret-down {
+            float: left;  /*right*/
+            padding-right: 8px;
+        }
+
+        table {
+            font-family: arial, sans-serif;
+            border-collapse: collapse;
+            text-align: left;
+        }
+
+        th, td {
+            border: 1px solid #dddddd;
+            text-align: left;
+            padding: 10px;
+        }
+
+        th {
+            background-color: #D3D3D3;
+        }
+
+        tr:nth-child(even) {
+            background-color: #F5F5F5;
+        }
+
+        tr:hover {
+            background-color: #A9A9A9;
+            cursor: pointer;
+        }
+
+        .btn {
+            border: none;
+            color: white;
+            padding: 14px 28px;
+            font-size: 16px;
+            cursor: pointer;
+            text-align: right;
+        }
+
+        .edit, .add {
+            background-color: #4CAF50;
+            margin: 10px 0px 10px 0px;
+        }
+            /* Green */
+            .edit:hover {
+                background-color: #46a049;
+            }
+        body {
+            margin: 10px;
+        }
+
+        .demo-carousel {
+            height: 200px;
+            line-height: 200px;
+            text-align: center;
+        }
+        body {
+            margin: 10px;
+        }
+
+        .demo-carousel {
+            height: 200px;
+            line-height: 200px;
+            text-align: center;
+        }
+        
+    </style>
+</head>
+<body>
+
+    <div class="sidenav">
+        <button class="dropdown-btn">
+            About
+            <i class="fa fa-caret-down"></i>
+        </button>
+        <div class="dropdown-container">
+            <a href="#1">Link 1</a>
+            <a href="#2">Link 2</a>
+            <a href="#3">Link 3</a>
+        </div>
+
+        <button class="dropdown-btn">
+            Dropdown
+            <i class="fa fa-caret-down"></i>
+        </button>
+        <div class="dropdown-container">
+            <a href="#4">Link 4</a>
+            <a href="#5">Link 5</a>
+            <a href="#6">Link 6</a>
+        </div>
+    </div>
+
+    <table class="layui-hide" id="demo" lay-filter="test"></table>
+
+    <script src="~/js/materialize.min.js"></script>
+    <script src="~/js/layui.js"></script>
+    <script type="text/html" id="barDemo">
+        <a class="layui-btn layui-btn-primary layui-btn-xs" lay-event="detail">查看</a>
+        <a class="layui-btn layui-btn-xs" lay-event="edit">编辑</a>
+        <a class="layui-btn layui-btn-danger layui-btn-xs" lay-event="del">删除</a>
+    </script>
+   
+    <script>
+        
+        layer.msg('Hello World');
+
+
+        function addi() {
+            $("#ShowModal").modal();
+            $("#message1").hide();
+            $("#message2").hide();
+        }
+
+
+        function create() {
+            var Name = $("#Name").val();
+            var Level = $("#Level").val();
+            var Phone = $("#Phone").val();
+
+            var data = $("#addEmployeeModal").serialize();
+            $.ajax({
+                type: "post",
+                data: data,
+                url: "/Users/CreateEmployee",
+                success: function () {
+                    $("#message1").show();
+                    $("#message2").hide();
+                    $("#Registration").trigger("reset");
+                }
+            });
+        }
+
+        var dropdown = document.getElementsByClassName("dropdown-btn");
+        var i;
+        var j;
+        for (i = 0; i < dropdown.length; i++) {
+            dropdown[i].addEventListener("click", function () {
+                this.classList.toggle("active")
+                var dropdownContent = this.nextElementSibling;
+                if (dropdownContent.style.display === "block") {
+                    dropdownContent.style.display = "none";
+                }
+                else {
+                    for (j = 0; j < dropdown.length; j++) {
+                        if (dropdown[j].classList.contains("active"))
+                            dropdown[j].classList.toggle("active")
+                        dropdown[j].nextElementSibling.style.display = "none";
+                    }
+                    this.classList.toggle("active");
+                    dropdownContent.style.display = "block";
+                }
+            }
+            );
+        }
+/*
+                                function Submit() {
+                                    var table = document.getElementById("MoiveTable");
+                                    var row = table.insertRow(-1);
+                                    var cell1 = row.insertCell(0);
+                                    var cell2 = row.insertCell(1);
+                                    var cell3 = row.insertCell(2);
+                                    var cell4 = row.insertCell(3);
+                                    var cell5 = row.insertCell(4);
+                                    cell1.innerHTML = "Title";
+                                    cell2.innerHTML = "ReleaseData";
+                                    cell3.innerHTML = document.getElementById("Genre")
+                                    cell4.innerHTML = document.getElementById("Price")
+                                    cell5.innerHTML = document.getElementById("Price")
+                                }
+
+                                /*
+                                var elements = document.getElementsByTagName('tr');
+                                for (var i = 0; i < elements.length; i++) {
+                                    (elements)[i].addEventListener("click", function () {
+                                        alert("Jump to Edit Page" + this.innerHTML);
+                                        var elements2 = this.getElementsByTagName('td');
+                                        len = elements2.length;
+                                        var attrs = ["Title", "ReleaseData", "Genre", "Price"];
+                                        for (var j = 0; j < elements2.length; j++) {
+                                            attrs[j] = elements2[j].innerText;
+                                            //alert(attrs[j]);
+                                        }
+                                        window.location.href = encodeURI("edit.html?Title=" + attrs[1] + "&ReleaseData=" + attrs[2] + "&Genre=" + attrs[3] + "&Price=" + attrs[4]);
+                                    });
+                                }
+                                */
+
+    </script>
+
+</body>
+</html>

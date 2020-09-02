@@ -1,0 +1,626 @@
+﻿@model PaginatedList<MvcUser.Models.People>
+@{
+    ViewBag.Title = "ManageEmployees";
+}
+@{
+    List<Sidebar> menuList = ViewBag.Link;
+
+}
+
+
+
+<!DOCTYPE html>
+<html>
+<head>
+    <meta name="viewport" content="width=device-width, initial-scale=1">
+    <link href="~/css/bootstrap.css" rel="stylesheet" />
+    <style>
+        body {
+            font-family: "Lato", sans-serif;
+        }
+
+        /*侧边栏*/
+        .sidenav {
+            height: 100%;
+            width: 240px;
+            position: fixed;
+            z-index: 1;
+            top: 0;
+            left: 0;
+            background-color: #111;
+            overflow-x: hidden;
+            padding-top: 20px;
+        }
+
+            /*侧边栏下拉*/
+            .sidenav a, .dropdown-btn, .sider-btn {
+                padding: 6px 8px 6px 16px;
+                text-decoration: none;
+                font-size: 20px;
+                color: #818181;
+                display: block;
+                border: none;
+                background: none;
+                width: 100%;
+                text-align: left;
+                cursor: pointer;
+                outline: none;
+            }
+                /*侧边栏鼠标悬停*/
+                .sidenav a:hover, .dropdown-btn:hover {
+                    color: #f1f1f1;
+                }
+
+        .main {
+            margin-left: 0px;
+            font-size: 16px;
+        }
+
+        /* Add an active class to the active dropdown button */
+        .active {
+            background-color: green;
+            color: white;
+        }
+
+        .dropdown-container {
+            display: none;
+            background-color: #262626;
+            padding-left: 8px;
+        }
+
+        .fa-caret-down {
+            float: left; /*right*/
+            padding-right: 8px;
+        }
+
+        table {
+            font-family: arial, sans-serif;
+            border-collapse: collapse;
+            text-align: left;
+            padding: 20px 0px;
+        }
+
+        th, td {
+            border: 1px solid #dddddd;
+            text-align: left;
+            padding: 10px;
+            width: auto;
+        }
+
+        th {
+            background-color: #D3D3D3;
+        }
+
+        tr:nth-child(even) {
+            background-color: #F5F5F5;
+        }
+
+        tr:hover {
+            background-color: #A9A9A9;
+            cursor: pointer;
+        }
+
+        .sider-btn {
+            border: none;
+            color: white;
+            padding: 14px 28px;
+            font-size: 16px;
+            cursor: pointer;
+            text-align: left;
+            width: 100%;
+        }
+
+        .edit, .add {
+            background-color: #4CAF50;
+            margin: 10px 0px 10px 0px;
+        }
+            /* Green */
+            .edit:hover {
+                background-color: #46a049;
+            }
+
+        body {
+            margin: 10px;
+        }
+
+        .demo-carousel {
+            height: 200px;
+            line-height: 200px;
+            text-align: center;
+        }
+
+        .sider-btn {
+            margin-left: -30px;
+        }
+
+    </style>
+</head>
+<body>
+    <div class="container " style="margin-bottom:50px">
+
+        <div class="sidenav navbar-expand-lg ">
+            <ul data-keep-expanded="false" data-auto-scroll="true" data-slide-speed="200">
+                @foreach (var mp in menuList.Where(p => p.Parent == string.Empty))
+                {
+                    <li>
+                        <a href="#" class="dropdown-btn sider-btn">
+                            <span class="title">@mp.Name</span>
+                            <span class="arrow"></span>
+                        </a>
+                        @if (menuList.Count(p => p.Parent == mp.Id.ToString()) > 0)
+                        {
+                            @:<ul class="sub-menu ">
+                            }
+
+                        @{await RenderMenuItem(menuList, mp);}
+
+                        @if (menuList.Count(p => p.Parent == mp.Id.ToString()) > 0)
+                        {
+                        @:</ul>
+                    }
+
+                    </li>
+                }
+            </ul>
+            @{
+                async Task RenderMenuItem(List<Sidebar> menuList, Sidebar mi)
+                {
+                    foreach (var cp in menuList.Where(p => p.Parent == mi.Id.ToString()))
+                    {
+                        if (@cp.Link != '#'.ToString())
+                        {
+                            @:<li>
+                                <a href="~@cp.Link" class="dropdown-btn sider-btn">
+                                    <span class="title">@cp.Name</span>
+                                    <span class="arrow"></span>
+                                </a>
+                        }
+                        else
+                        {
+                            @:<li>
+                            <a href="#" class="dropdown-btn sider-btn">
+                                <span class="title">@cp.Name</span>
+                                <span class="arrow"></span>
+                            </a>
+                        }
+
+                        if (menuList.Count(p => p.Parent == cp.Id.ToString()) > 0)
+                        {
+                            @:<ul class="sub-menu">
+                            }
+                            await RenderMenuItem(menuList, cp);
+                            if (menuList.Count(p => p.Parent == cp.Id.ToString()) > 0)
+                            {
+                                @:</ul>
+                        }
+                        else
+                        {
+                                @:</li>
+                        }
+                    }
+                }
+            }
+
+
+
+        </div>
+
+
+
+        <div class="container-fluid">
+            <div class="table-borderless">
+                <div class="table-title">
+                    <div class="row">
+                        <div style="width:30%">
+                            <h2>Manage<b>Employees</b></h2>
+                        </div>
+                        <form asp-action="Users" method="get" class="form-inline">
+                            <div class="form-actions no-color form-inline">
+                                <div class="input-group" style="margin-left:10px">Find:&nbsp;<input type="text" name="SearchString" value="@ViewData["currentFilter"]" /></div>
+                                <div class="input-group"><input type="submit" value="Search" class="btn btn-primary" style="color:white;padding:2px;margin:4px 8px" id="Search" /></div>
+                                <div class="input-group"><a asp-action="Users">Back to Full List</a></div>
+                            </div>
+                        </form>
+                        <div style="width:22%; margin-bottom:12px; padding-right:0px;padding-left:0px;margin-left:40px">
+                            <button class="btn btn-success float-right" onclick="addcreate()"><span class="glyphicon glyphicon-adjust"></span>Add New Employee</button>
+                        </div>
+                    </div>
+                </div>
+
+                <table class="col-sm-12" id="mytable">
+                    <thead>
+                        <tr>
+
+                            <th style="width:10%"><a asp-action="Users" asp-route-sortOrder="@ViewData["LevelSortParm"]" asp-route-currentFilter="@ViewData["CurrentFilter"]">Id</a><span class="glyphicon glyphicon-sort"></span></th>
+                            <th style="width:25%"><a asp-action="Users" asp-route-sortOrder="@ViewData["NameSortParm"]" asp-route-currentFilter="@ViewData["CurrentFilter"]">Name</a><span class="glyphicon glyphicon-sort"></span></th>
+                            <th style="width:25%"><a asp-action="Users" asp-route-sortOrder="@ViewData["LevelSortParm"]" asp-route-currentFilter="@ViewData["CurrentFilter"]">Level</a><span class="glyphicon glyphicon-sort"></span></th>
+                            <th style="width:25%">Phone</th>
+                            <th style="width:15%">Actions</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        @foreach (var person in Model)
+                        {
+                            {
+                                <tr>
+                                    <td id="ID">@person.ID</td>
+                                    <td>@person.Name</td>
+                                    <td>@person.Level</td>
+                                    <td>@person.Phone</td>
+                                    <td>
+                                        <div class="btn-group">
+                                            <button class="btn btn-dark" name="Edit"><span class="glyphicon "></span>Edit</button>
+                                            <button class="btn btn-danger" name="Delete"><span class="glyphicon "></span>Delete</button>
+                                        </div>
+                                    </td>
+                                </tr>
+                            }
+                        }
+                    </tbody>
+                </table>
+
+                @{
+                    var prevDisabled = !Model.HasPreviousPage ? "disabled" : "";
+                    var nextDisabled = !Model.HasNextPage ? "disabled" : "";
+                }
+
+
+                <nav aria-label="Page navigation" style="margin-top:10px">
+                    <ul class="pagination justify-content-end">
+                        <li class="page-item">
+                            <a asp-action="Users"
+                               asp-route-sortOrder="@ViewData["CurrentSort"]"
+                               asp-route-pageNumber="@(Model.PageIndex - 1)"
+                               asp-route-currentFilter="@ViewData["CurrentFilter"]"
+                               class="page-link btn  @prevDisabled" style="color:black">
+                                <span aria-hidden="true">&laquo;</span>
+                            </a>
+                        </li>
+                        <!--   <li class="page-item"><a class="page-link" href="#">1</a></li> -->
+
+                        <li class="page-item">
+                            <a asp-action="Users"
+                               asp-route-sortOrder="@ViewData["CurrentSort"]"
+                               asp-route-pageNumber="@(Model.PageIndex + 1)"
+                               asp-route-currentFilter="@ViewData["CurrentFilter"]"
+                               class="page-link btn  @nextDisabled" style="color: black">
+                                <span aria-hidden="true">&raquo;</span>
+                            </a>
+                        </li>
+                    </ul>
+                </nav>
+
+            </div>
+
+
+
+
+            <!--
+            <div class="test" pagination="p-new" pagenumber="1" totalnumber="15" paginationmax="15">
+                <ul class="pagination justify-content-center" style="margin:20px 0">
+                    <li class="page-item" id="Page1"><a class="page-link" href="#">«</a></li>
+                    if (i < 10)
+                    {
+                        <li class="page-item"><a class="page-link" href="#">1</a></li>
+                    }
+                    else
+                    {
+                        int totalNumber = (i / 10 == 0) ? i / 10 : i / 10 + 1;
+                        for (int j = 1; j <= totalNumber; j++)
+                        {
+                            <li class="page-item"><a class="page-link" href="#">j</a></li>
+                        }
+                    }
+                    <li class="page-item"><a class="page-link" href="#">»</a></li>
+                </ul>
+            </div>
+             -->
+
+        </div>
+
+    </div>
+
+    <div class="modal fade " id="ShowModalCreate">
+        <div class="modal-dialog ">
+            <div class="modal-content">
+                <div class="modal-header ">
+                    <h3 class="text-left">Create Form</h3>
+                    <a class="close " asp-action="Users">&times;</a> <!--data-dismiss="modal"-->
+                    <div id="message1">
+                        <div class="alert alert-success">
+                            <span class="glyphicon glyphicon-ok"></span><strong>
+                                Success Message! <br />
+                                send an email to your email address with confirmation link!
+                                please check your inbox
+                            </strong>
+                        </div>
+                    </div>
+                    <div id="message2">
+                        <div class="alert alert-success">
+                            <span class="glyphicon glyphicon-remove"></span><strong>Error  Message! Your Registration Is Not Complete</strong>
+                        </div>
+                    </div>
+                </div>
+
+                <div class="modal-body">
+                    <form id="addEmployeeModal">
+                        <div class="form-group">
+                            <div class="input-group">
+                                <span class="input-group-append"><i class="glyphicon glyphicon-user "></i></span>
+                                <input class="form-control" type="text" name="Name" id="Name" placeholder="Name" required />
+                            </div>
+                        </div>
+                        <div class="form-group">
+                            <div class="input-group">
+                                <span class="input-group-append"><i class="glyphicon glyphicon-level-up"></i></span>
+                                <input class="form-control" type="text" name="Level" id="Level" placeholder="Level" required />
+                            </div>
+                        </div>
+                        <div class="form-group">
+                            <div class="input-group">
+                                <span class="input-group-append"><i class="glyphicon glyphicon-phone"></i></span>
+                                <input class="form-control" type="text" name="Phone" id="Phone" placeholder="Phone" required />
+                            </div>
+                        </div>
+                    </form>
+                    <div class="form-group">
+                        <button class="btn btn-info form-control" type="submit" onclick="create()"><i class="glyphicon glyphicon-registration-mark"></i>Create</button>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <div class="modal fade " id="ShowModalEdit">
+        <div class="modal-dialog ">
+            <div class="modal-content">
+                <div class="modal-header ">
+                    <h3 class="text-left">Edit Form</h3>
+                    <a class="close" asp-action="Users">&times;</a> <!--data-dismiss="modal"-->
+                </div>
+
+                <div class="modal-body">
+                    <form id="editEmployeeModal">
+                        <div class="form-group">
+                            <div class="input-group">
+                                <span class="input-group-append"><i class="glyphicon glyphicon-user "></i></span>
+                                <input class="form-control " type="text" name="EditName" id="EditName" required />
+                            </div>
+                        </div>
+                        <div class="form-group">
+                            <div class="input-group">
+                                <span class="input-group-append"><i class="glyphicon glyphicon-level-up"></i></span>
+                                <input class="form-control  " type="text" name="EditLevel" id="EditLevel" required />
+                            </div>
+                        </div>
+                        <div class="form-group">
+                            <div class="input-group">
+                                <span class="input-group-append"><i class="glyphicon glyphicon-phone"></i></span>
+                                <input class="form-control " type="text" name="EditPhone" id="EditPhone" required />
+                            </div>
+                        </div>
+                    </form>
+                    <div class="form-group">
+                        <button class="btn btn-info form-control " type="submit" onclick="editSubmit()"><i class="glyphicon glyphicon-registration-mark"></i>Edit</button>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <script src="~/js/materialize.min.js"></script>
+    <script>
+        //active first page
+        //$("ul li").first().addClass("selected");
+        //总页数
+        //var i = i;
+
+        /*
+        var totalNumber = (i / 15 == 0) ? i / 15 : i / 15 + 1;
+        $("ul").closest("div");
+        $("ul").closest("div").attr("paginationmax").innerText = totalNumber;
+        var eachPage = 15;
+
+        pageInit();
+
+        function pageInit() {
+            $('[pagination = p-new]').each(function () {
+                initPage($(this));
+            })
+        };
+
+        function initPage(element) {
+            pagenumber = Number(element.attr('pagenumber'));
+            totalnumber = Number(element.attr('totalnumber'));
+            paginationmax = Number(element.attr('paginationmax'));
+            if (totalnumber >= 1 && pagenumber <= totalnumber && paginationmax <= totalnumber) {
+                var content =
+                    "<ul class='pagination'>" +
+                    "<li value='pre'>" +
+                    "<a href='javascript:void(0);'>«</a>" +
+                    "</li>";
+                for (var i = 0; i < totalnumber; i++) {
+                    content +=
+                        "<li value='" + (i + 1) + "'>" +
+                        "<a href='javascript:void(0);'>" + (i + 1) +
+                        "</a>" +
+                        "</li>"
+                }
+                content +=
+                    "<li value='next'>" +
+                    "<a href='javascript:void(0);'>»</a>" +
+                    "</li>" +
+                    "</ul>";
+                element.append(content);
+                //                为设置为当前页的页签添加样式
+                element.children('ul').children('li[value = ' + pagenumber + ']').addClass('active');
+                element.children('ul').children('li').click(clickChange);
+                element.children('ul').children('li').click(processData);
+                //                显示那几个页签 传入任意li元素即可
+                pageShow(element.children('ul').children('li[value = ' + pagenumber + ']'))
+            } else {
+                console.log('分页自定义属性不合理')
+            }
+        }
+        */
+
+
+        //增加employee
+        function addcreate() {
+            $("#ShowModalCreate").modal();
+            $("#message1").hide();
+            $("#message2").hide();
+        }
+        function create() {
+            var Name = $("#Name").val();
+            var Level = $("#Level").val();
+            var Phone = $("#Phone").val();
+
+            if (Name == "" || Level == "" || Phone == "") {
+                $("#message1").hide();
+                $("#message2").show();
+                return false;
+            }
+
+            var data = $("#addEmployeeModal").serialize();
+            $.ajax({
+                type: "post",
+                data: data,
+                url: "/Users/CreateEmployee",
+                success: function () {
+                    $("#message1").show();
+                    $("#message2").hide();
+                    $("#addEmployeeModal").trigger("reset");
+
+                }
+            });
+        }
+
+
+
+        function editSubmit() {
+            var data = "ID=" + attrs[0] + "&Name=" + $("#EditName").val() + "&Level=" + $("#EditLevel").val() + "&Phone=" + $("#EditPhone").val();
+            console.log(data);
+            $.ajax({
+                type: "post",
+                data: data,
+                url: "/Users/EditEmployee",
+                success: function () {
+                    $("#message12").show();
+                    $("#message22").hide();
+                    $("#editEmployeeModal").trigger("reset");
+                    $("#ShowModalEdit").modal().hide();
+                    l
+                }
+            });
+        }
+        //edit 事件
+        var elementsEdit = document.getElementsByName("Edit");
+        for (var i = 0; i < elementsEdit.length; i++) {
+            elementsEdit[i].addEventListener('click', function () {
+                $("#ShowModalEdit").modal();
+                $("#message1").hide();
+                $("#message2").hide();
+
+            });
+        }
+
+        //delete事件
+        var elementsDelete = document.getElementsByName("Delete");
+        for (var i = 0; i < elementsDelete.length; i++) {
+            elementsDelete[i].addEventListener('click', function () {
+                var text = $(this).closest('tr').find("#ID").text();
+                var id = parseInt(text);
+                var r = confirm("Are you sure to delete?");
+                if (r == true) {
+                    var data = id;
+                    console.log(data);
+                    $.ajax({
+                        type: "post",
+                        data: "id=" + data,
+                        url: "/Users/DeleteEmployee",
+                        success: function () {
+                            alert("Accomplish!");
+
+                        }
+                    });
+                }
+            });
+        }
+
+
+
+
+        //选择悬停行元素
+        var elements = document.getElementsByTagName("tr");
+        for (var i = 0; i < elements.length; i++) {
+            (elements)[i].addEventListener("click", function () {
+                var elements2 = this.getElementsByTagName("td");
+                len = elements2.length - 1;
+                for (var j = 0; j < len; j++) {
+                    attrs[j] = elements2[j].innerText;
+                    //console.log(attrs[j]);
+                }
+                $("#EditName").val(attrs[1]);
+                $("#EditLevel").val(attrs[2]);
+                $("#EditPhone").val(attrs[3]);
+            });
+        }
+        //缓存属性
+        var attrs = ["ID", "Name", "Level", "Phone"];
+        /*
+        for (Delete = 0; Delete < elementsDelete.length; Delete++) {
+            (elementsDelete)[Delete].addEventListener("click", function () {
+                var elements2 = elements[Delete].getElementsByTagName('td');
+                len = elements2.length;
+                console.log(len);
+                var attrs = ["ID", "Name", "Level", "Phone"];
+                for (var j = 0; j < elements2.length; j++) {
+                    attrs[j] = elements2[j].innerText;
+                    console.log(attrs[j]);
+                }
+                var data = " ID = " + attrs[1] + " & Name=" + attrs[2] + " & Level=" + attrs[3] + " & Phone=" + attrs[4]
+                $.ajax({
+                    type: "post",
+                    data: data,
+                    url: "/Users/DeleteEmployee",
+                    success: function () {
+                        $("#message12").show();
+                        $("#message22").hide();
+                        $("#editEmployeeModal").trigger("reset");
+                        $("#ShowModalEdit").modal().hide();
+                    }
+                });
+            });
+        }
+        */
+
+
+        var dropdown = document.getElementsByClassName("dropdown-btn");
+        for (var i = 0; i < dropdown.length; i++) {
+            dropdown[i].addEventListener("click", function () {
+                this.classList.toggle("active")
+                var dropdownContent = this.nextElementSibling;
+                if (dropdownContent.style.display === "block") {
+                    dropdownContent.style.display = "none";
+                }
+                else {
+                    for (var j = 0; j < dropdown.length; j++) {
+                        if (dropdown[j].classList.contains("active"))
+                            dropdown[j].classList.toggle("active")
+                        //dropdown[j].nextElementSibling.style.display = "none";
+                    }
+                    this.classList.toggle("active");
+                    dropdownContent.style.display = "block";
+                }
+            }
+            );
+        }
+
+
+
+
+    </script>
+
+</body>
+</html>

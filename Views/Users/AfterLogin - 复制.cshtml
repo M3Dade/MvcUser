@@ -1,0 +1,11 @@
+﻿@{
+    ViewBag.Title = "AfterLogin";
+}
+<h2>AfterLogin</h2>
+@if(TempData["UserID"] != null)
+{
+    <div>
+        <a href="#">@TempData["UserName"]</a><br />
+        <a asp-controller="Users" asp-action="Index">Logout</a>
+    </div>
+}
